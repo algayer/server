@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/model/Anexo.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/model/Projeto.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/utils/ResponseObject.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/model/Tarefa.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/dao/AnexoDAO.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/dao/ProjetoDAO.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/service/PessoaCRUDService.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/dao/EquipeDAO.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/dao/TarefaDAO.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/service/TarefaCRUDService.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/dao/PessoaDAO.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/service/ProjetoCRUDService.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/service/CRUDService.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/service/AnexoCRUDService.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/model/Pessoa.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/model/Equipe.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/utils/RequestObject.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/service/EquipeCRUDService.java</file>
+            <file>file:/C:/Users/mathe/Documents/NetBeansProjects/Projeto%20BikeShop%20-%20Algayer/server/src/com/example/common/dao/ConexaoBancoDados.java</file>
+        </group>
+    </open-files>
+</project-private>
