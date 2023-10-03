@@ -23,58 +23,59 @@ public class ConexaoController {
         this.isConnected = connect();
     }
 
-    private boolean connect() {
+    private synchronized boolean connect() {
+        if (isConnected) {
+            System.out.println(TAG + ": Já está conectado.");
+            return true;
+        }
         try {
             System.out.println(TAG + ": Tentando conectar...");
             socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+            
+            // Primeiro inicialize o ObjectOutputStream
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
+            
+            // Em seguida, inicialize o ObjectInputStream
             in = new ObjectInputStream(socket.getInputStream());
+
             System.out.println(TAG + ": Conectado com sucesso.");
             isConnected = true;
         } catch (IOException e) {
             System.err.println(TAG + ": Erro ao conectar. " + e.getMessage());
             isConnected = false;
         }
-
         return isConnected;
     }
 
     public ResponseObject sendRequest(RequestObject request) {
-        final ResponseObject[] responseObject = {null};
-
-        new Thread(() -> {
+        if (!isConnected) {
+            System.out.println(TAG + ": Não está conectado. Tentando reconectar...");
+            isConnected = connect();
             if (!isConnected) {
-                System.out.println(TAG + ": Não está conectado. Tentando reconectar...");
-                isConnected = connect();
-                if (!isConnected) {
-                    System.err.println(TAG + ": Falha ao reconectar.");
-                    responseObject[0] = new ResponseObject(false, "Falha ao reconectar.", null);
-                    return;
-                }
+                System.err.println(TAG + ": Falha ao reconectar.");
+                return new ResponseObject(false, "Falha ao reconectar.", null);
             }
+        }
 
-            try {
-                System.out.println(TAG + ": Enviando requisição...");
-                out.writeObject(request);
-                out.flush();
-                System.out.println(TAG + ": Requisição enviada. Aguardando resposta...");
+        try {
+            System.out.println(TAG + ": Enviando requisição...");
+            out.writeObject(request);
+            out.flush();
+            System.out.println(TAG + ": Requisição enviada. Aguardando resposta...");
 
-                Object response = in.readObject();
-                if (response instanceof ResponseObject) {
-                    responseObject[0] = (ResponseObject) response;
-                } else {
-                    System.err.println(TAG + ": Resposta inválida do servidor.");
-                    responseObject[0] = new ResponseObject(false, "Resposta inválida do servidor.", null);
-                }
-            } catch (Exception e) {
-                System.err.println(TAG + ": Erro ao enviar requisição ou ao receber resposta: " + e.getMessage());
-                isConnected = false;
-                responseObject[0] = new ResponseObject(false, "Erro ao enviar requisição ou ao receber resposta: " + e.getMessage(), null);
+            Object response = in.readObject();
+            if (response instanceof ResponseObject) {
+                return (ResponseObject) response;
+            } else {
+                System.err.println(TAG + ": Resposta inválida do servidor.");
+                return new ResponseObject(false, "Resposta inválida do servidor.", null);
             }
-        }).start();
-
-        return responseObject[0];
+        } catch (Exception e) {
+            System.err.println(TAG + ": Erro ao enviar requisição ou ao receber resposta: " + e.getMessage());
+            isConnected = false;
+            return new ResponseObject(false, "Erro ao enviar requisição ou ao receber resposta: " + e.getMessage(), null);
+        }
     }
 
     public ResponseObject sendLoginRequest(String username, String password) {
