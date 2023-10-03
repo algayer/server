@@ -18,7 +18,6 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-
 public class ServerMain {
 
     public static final int PORT = 8080;
@@ -29,9 +28,9 @@ public class ServerMain {
     private static final TarefaCRUDService tarefaService = new TarefaCRUDService();
     private static final AnexoCRUDService anexoService = new AnexoCRUDService();
     private static final String TERMINATION_STRING = "TERMINATION_SIGNAL";
-    
+
     public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+        try ( ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Servidor iniciado na porta " + PORT);
 
             while (true) {
@@ -45,34 +44,38 @@ public class ServerMain {
     }
 
     private static void handleClient(Socket clientSocket) {
-    try (ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream());
-            ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream())) {
-        
-        // Logando a conexão do cliente
-        System.out.println("Cliente conectado: " + clientSocket.getRemoteSocketAddress());
-
-        while (true) { // Mantenha a conexão aberta
-            RequestObject request = (RequestObject) in.readObject();
-
-            // Logando a requisição recebida
-            System.out.println("Requisição recebida: " + request.getOperation());
-
-            ResponseObject response = processRequest(request);
-            out.writeObject(response);
-        }
-        
-    } catch (EOFException e) {
-        System.out.println("Conexão finalizada pelo cliente");
-    } catch (Exception e) {
-        e.printStackTrace();
-    } finally {
-        try {
-            clientSocket.close();
+        try (ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+             ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())) {
+    
+            System.out.println("Cliente conectado: " + clientSocket.getRemoteSocketAddress());
+    
+            while (true) {
+                RequestObject request;
+                try {
+                    request = (RequestObject) in.readObject();
+                    System.out.println("Requisição recebida: " + request.getOperation() + ", Dados: " + request.getData());
+                } catch (EOFException e) {
+                    System.out.println("Conexão finalizada pelo cliente");
+                    return;
+                }
+    
+                ResponseObject response = processRequest(request);
+                System.out.println("Enviando resposta: Sucesso=" + response.isSuccess() + ", Mensagem: " + response.getMessage() + ", Dados: " + response.getData());
+                
+                out.writeObject(response);
+                out.flush();
+            }
+    
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            try {
+                clientSocket.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
-}
 
     private static ResponseObject processRequest(RequestObject request) {
         try {
@@ -162,5 +165,3 @@ public class ServerMain {
         }
     }
 }
-
-
