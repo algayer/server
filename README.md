@@ -28,6 +28,7 @@ public class ConexaoController {
             System.out.println(TAG + ": Tentando conectar...");
             socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
             out = new ObjectOutputStream(socket.getOutputStream());
+            out.flush();
             in = new ObjectInputStream(socket.getInputStream());
             System.out.println(TAG + ": Conectado com sucesso.");
             isConnected = true;
@@ -40,33 +41,40 @@ public class ConexaoController {
     }
 
     public ResponseObject sendRequest(RequestObject request) {
-        if (!isConnected) {
-            System.out.println(TAG + ": Não está conectado. Tentando reconectar...");
-            isConnected = connect();
+        final ResponseObject[] responseObject = {null};
+
+        new Thread(() -> {
             if (!isConnected) {
-                System.err.println(TAG + ": Falha ao reconectar.");
-                return new ResponseObject(false, "Falha ao reconectar.", null);
+                System.out.println(TAG + ": Não está conectado. Tentando reconectar...");
+                isConnected = connect();
+                if (!isConnected) {
+                    System.err.println(TAG + ": Falha ao reconectar.");
+                    responseObject[0] = new ResponseObject(false, "Falha ao reconectar.", null);
+                    return;
+                }
             }
-        }
 
-        try {
-            System.out.println(TAG + ": Enviando requisição...");
-            out.writeObject(request);
-            out.flush();
-            System.out.println(TAG + ": Requisição enviada. Aguardando resposta...");
+            try {
+                System.out.println(TAG + ": Enviando requisição...");
+                out.writeObject(request);
+                out.flush();
+                System.out.println(TAG + ": Requisição enviada. Aguardando resposta...");
 
-            Object response = in.readObject();
-            if (response instanceof ResponseObject) {
-                return (ResponseObject) response;
-            } else {
-                System.err.println(TAG + ": Resposta inválida do servidor.");
-                return new ResponseObject(false, "Resposta inválida do servidor.", null);
+                Object response = in.readObject();
+                if (response instanceof ResponseObject) {
+                    responseObject[0] = (ResponseObject) response;
+                } else {
+                    System.err.println(TAG + ": Resposta inválida do servidor.");
+                    responseObject[0] = new ResponseObject(false, "Resposta inválida do servidor.", null);
+                }
+            } catch (Exception e) {
+                System.err.println(TAG + ": Erro ao enviar requisição ou ao receber resposta: " + e.getMessage());
+                isConnected = false;
+                responseObject[0] = new ResponseObject(false, "Erro ao enviar requisição ou ao receber resposta: " + e.getMessage(), null);
             }
-        } catch (Exception e) {
-            System.err.println(TAG + ": Erro ao enviar requisição ou ao receber resposta: " + e.getMessage());
-            isConnected = false;
-            return new ResponseObject(false, "Erro ao enviar requisição ou ao receber resposta: " + e.getMessage(), null);
-        }
+        }).start();
+
+        return responseObject[0];
     }
 
     public ResponseObject sendLoginRequest(String username, String password) {
@@ -79,9 +87,15 @@ public class ConexaoController {
     public void closeConnection() {
         try {
             System.out.println(TAG + ": Fechando conexão...");
-            if (in != null) in.close();
-            if (out != null) out.close();
-            if (socket != null) socket.close();
+            if (in != null) {
+                in.close();
+            }
+            if (out != null) {
+                out.close();
+            }
+            if (socket != null) {
+                socket.close();
+            }
             isConnected = false;
             System.out.println(TAG + ": Conexão fechada.");
         } catch (IOException e) {
