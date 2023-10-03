@@ -10,7 +10,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ConexaoController {
-
     private final String SERVER_ADDRESS = "127.0.0.1";
     private final int SERVER_PORT = 8080;
     private Socket socket;
@@ -20,69 +19,77 @@ public class ConexaoController {
     private static final String TAG = "ConexaoController";
 
     public ConexaoController() {
-        this.isConnected = connect();
+        connect();
     }
 
-    private synchronized boolean connect() {
-        if (isConnected) {
-            System.out.println(TAG + ": Já está conectado.");
-            return true;
-        }
-        try {
-            System.out.println(TAG + ": Tentando conectar...");
-            socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
-            
-            // Primeiro inicialize o ObjectOutputStream
-            out = new ObjectOutputStream(socket.getOutputStream());
-            out.flush();
-            
-            // Em seguida, inicialize o ObjectInputStream
-            in = new ObjectInputStream(socket.getInputStream());
-
-            System.out.println(TAG + ": Conectado com sucesso.");
-            isConnected = true;
-        } catch (IOException e) {
-            System.err.println(TAG + ": Erro ao conectar. " + e.getMessage());
-            isConnected = false;
-        }
-        return isConnected;
+    private void connect() {
+        new Thread(() -> {
+            try {
+                System.out.println(TAG + ": Tentando conectar...");
+                socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
+                out = new ObjectOutputStream(socket.getOutputStream());
+                in = new ObjectInputStream(socket.getInputStream());
+                startListener();
+                System.out.println(TAG + ": Conectado com sucesso.");
+                isConnected = true;
+            } catch (IOException e) {
+                System.err.println(TAG + ": Erro ao conectar. " + e.getMessage());
+                isConnected = false;
+            }
+        }).start();
     }
 
-    public ResponseObject sendRequest(RequestObject request) {
-        if (!isConnected) {
-            System.out.println(TAG + ": Não está conectado. Tentando reconectar...");
-            isConnected = connect();
+    public boolean sendRequest(RequestObject request) {
+        new Thread(() -> {
             if (!isConnected) {
-                System.err.println(TAG + ": Falha ao reconectar.");
-                return new ResponseObject(false, "Falha ao reconectar.", null);
+                System.out.println(TAG + ": Não está conectado. Tentando reconectar...");
+                connect();
+                if (!isConnected) {
+                    System.err.println(TAG + ": Falha ao reconectar.");
+                    return;
+                }
             }
-        }
-
-        try {
-            System.out.println(TAG + ": Enviando requisição...");
-            out.writeObject(request);
-            out.flush();
-            System.out.println(TAG + ": Requisição enviada. Aguardando resposta...");
-
-            Object response = in.readObject();
-            if (response instanceof ResponseObject) {
-                return (ResponseObject) response;
-            } else {
-                System.err.println(TAG + ": Resposta inválida do servidor.");
-                return new ResponseObject(false, "Resposta inválida do servidor.", null);
+            try {
+                System.out.println(TAG + ": Enviando requisição...");
+                out.writeObject(request);
+                out.flush();
+                System.out.println(TAG + ": Requisição enviada.");
+            } catch (Exception e) {
+                System.err.println(TAG + ": Erro ao enviar requisição: " + e.getMessage());
+                isConnected = false;
             }
-        } catch (Exception e) {
-            System.err.println(TAG + ": Erro ao enviar requisição ou ao receber resposta: " + e.getMessage());
-            isConnected = false;
-            return new ResponseObject(false, "Erro ao enviar requisição ou ao receber resposta: " + e.getMessage(), null);
-        }
+        }).start();
+        return true;
+    }
+
+    private void startListener() {
+        new Thread(() -> {
+            while (isConnected) {
+                try {
+                    System.out.println(TAG + ": Aguardando resposta...");
+                    Object response = in.readObject();
+                    if (response instanceof ResponseObject) {
+                        // Você pode processar a resposta aqui ou usar alguma lógica similar ao MutableLiveData do Android.
+                        System.out.println(TAG + ": Resposta recebida.");
+                    } else {
+                        System.err.println(TAG + ": Resposta inválida do servidor.");
+                    }
+                } catch (EOFException e) {
+                    System.err.println(TAG + ": Conexão perdida com o servidor");
+                    isConnected = false;
+                } catch (Exception e) {
+                    System.err.println(TAG + ": Erro ao receber resposta: " + e.getMessage());
+                    isConnected = false;
+                }
+            }
+        }).start();
     }
 
     public ResponseObject sendLoginRequest(String username, String password) {
         System.out.println(TAG + ": Enviando requisição de login para o usuário: " + username);
         Pessoa user = new Pessoa(username, password);
         RequestObject request = new RequestObject("login", user);
-        return sendRequest(request);
+        return sendRequest(request);  // Observe que isso irá retornar imediatamente. Você precisará de um mecanismo para esperar pela resposta do servidor.
     }
 
     public void closeConnection() {
