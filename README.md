@@ -8,10 +8,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class ClientService {
-
+public class ClientMain {
     private final String SERVER_ADDRESS = "10.0.2.2";
     private final int SERVER_PORT = 8080;
+
+    public static void main(String[] args) {
+        ClientMain client = new ClientMain();
+        // Exemplo de como usar
+        ResponseObject response = client.sendRequest(new RequestObject("login", "testUser:testPassword"));
+        System.out.println(response.getMessage());
+    }
 
     public ResponseObject sendRequest(RequestObject request) {
         try (Socket socket = new Socket(SERVER_ADDRESS, SERVER_PORT);
@@ -31,10 +37,5 @@ public class ClientService {
             e.printStackTrace();
             return new ResponseObject(false, "Error: " + e.getMessage(), null);
         }
-    }
-
-    public ResponseObject sendLoginRequest(String username, String password) {
-        RequestObject request = new RequestObject("login", username + ":" + password);
-        return sendRequest(request);
     }
 }
