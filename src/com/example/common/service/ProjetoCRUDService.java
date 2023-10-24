@@ -35,5 +35,9 @@ public class ProjetoCRUDService implements CRUDService<Projeto> {
     public List<Projeto> listarTodos() {
         return projetoDAO.listarTodosProjetos();
     }
+    
+    public List<Projeto> listarProjetosPorUsuario(int idPessoa) {
+        return projetoDAO.listarProjetosPorUsuario(idPessoa);
+    }
 }
 

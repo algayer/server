@@ -12,11 +12,22 @@ public class Projeto implements Serializable {
     private Date DataEntrega;
     private Date DataInicial;
     private int ID_Equipe;
+    private int ID_Pessoa;
 
     public Projeto() {
         // Construtor vazio é necessário para serialização
     }
 
+    public Projeto(int ID_Projeto, String Nome, String Descricao, Date DataEntrega, Date DataInicial, int ID_Equipe, int ID_Pessoa) {
+        this.ID_Projeto = ID_Projeto;
+        this.Nome = Nome;
+        this.Descricao = Descricao;
+        this.DataEntrega = DataEntrega;
+        this.DataInicial = DataInicial;
+        this.ID_Equipe = ID_Equipe;
+        this.ID_Pessoa = ID_Pessoa;
+    }
+    
     public Projeto(int ID_Projeto, String Nome, String Descricao, Date DataEntrega, Date DataInicial, int ID_Equipe) {
         this.ID_Projeto = ID_Projeto;
         this.Nome = Nome;
@@ -33,6 +44,14 @@ public class Projeto implements Serializable {
 
     public void setID_Projeto(int ID_Projeto) {
         this.ID_Projeto = ID_Projeto;
+    }
+    
+    public int getID_Pessoa() {
+        return ID_Pessoa;
+    }
+
+    public void setID_Pessoa(int ID_Pessoa) {
+        this.ID_Pessoa = ID_Pessoa;
     }
 
     public String getNome() {

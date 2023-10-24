@@ -15,12 +15,15 @@ import com.example.common.utils.ResponseObject;
 import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServerMain {
 
     public static final int PORT = 8080;
+    private static final Logger LOGGER = Logger.getLogger(ServerMain.class.getName());
 
     private static final PessoaCRUDService pessoaService = new PessoaCRUDService();
     private static final EquipeCRUDService equipeService = new EquipeCRUDService();
@@ -48,13 +51,16 @@ public class ServerMain {
              ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())) {
     
             System.out.println("Cliente conectado: " + clientSocket.getRemoteSocketAddress());
+            LOGGER.log(Level.INFO, "Iniciando manipulação do cliente: {0}", clientSocket.getRemoteSocketAddress());
     
             while (true) {
                 RequestObject request;
                 try {
                     request = (RequestObject) in.readObject();
+                    LOGGER.log(Level.INFO, "Requisição recebida: {0}, Dados: {1}", new Object[]{request.getOperation(), request.getData()});
                     System.out.println("Requisição recebida: " + request.getOperation() + ", Dados: " + request.getData());
                 } catch (EOFException e) {
+                    LOGGER.log(Level.WARNING, "Conexão finalizada pelo cliente");
                     System.out.println("Conexão finalizada pelo cliente");
                     return;
                 }
@@ -67,6 +73,7 @@ public class ServerMain {
             }
     
         } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Erro ao manipular cliente", e);
             e.printStackTrace();
         } finally {
             try {
@@ -126,6 +133,8 @@ public class ServerMain {
                     return new ResponseObject(true, "Projeto excluído com sucesso", null);
                 case "listarTodosProjeto":
                     return new ResponseObject(true, "", projetoService.listarTodos());
+                case "listarProjetosPorUsuario":
+                    return new ResponseObject(true, "listarProjetosPorUsuario", projetoService.listarProjetosPorUsuario((int) request.getData()));
 
                 // Operações para Tarefa
                 case "criarTarefa":

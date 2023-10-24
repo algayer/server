@@ -24,6 +24,11 @@ public class Pessoa implements Serializable {
         this.Senha = Senha;
         this.Tipo = Tipo;
     }
+    
+    public Pessoa(String Usuario, String Senha) {
+        this.Usuario = Usuario;
+        this.Senha = Senha;
+    }
 
     // Getters e Setters
     public int getID_Pessoa() {
