@@ -1,6 +1,7 @@
 package com.example.common.service;
 import com.example.common.dao.EquipeDAO;
 import com.example.common.model.Equipe;
+import com.example.common.model.Pessoa;
 import java.util.List;
 
 
@@ -34,6 +35,10 @@ public class EquipeCRUDService implements CRUDService<Equipe> {
     @Override
     public List<Equipe> listarTodos() {
         return equipeDAO.listarTodasEquipes();
+    }
+    
+    public List<Pessoa> listarMembros(int id){
+        return equipeDAO.listarMembrosDaEquipe(id);
     }
 }
 

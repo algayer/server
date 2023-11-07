@@ -12,15 +12,16 @@ import java.util.List;
 public class TarefaDAO {
 
     public void inserirTarefa(Tarefa tarefa) {
-        String sql = "INSERT INTO Tarefa (Nome, Descricao, HorasTrabalhadas, ID_Projeto, ID_Pessoa) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Tarefa (Nome, Descricao, HorasTrabalhadas,DataEntrega, ID_Projeto, Estado) VALUES (?, ?, ?, ?, ?,?)";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao();
-                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, tarefa.getNome());
             stmt.setString(2, tarefa.getDescricao());
-            stmt.setTime(3, tarefa.getHorasTrabalhadas());
-            stmt.setInt(4, tarefa.getID_Projeto());
-            stmt.setInt(5, tarefa.getID_Pessoa());
+            stmt.setTime(3,tarefa.getHorasTrabalhadas());
+            stmt.setDate(4, new java.sql.Date(tarefa.getDataEntrega().getTime()));
+            stmt.setInt(5, tarefa.getID_Projeto());
+            stmt.setBoolean(6, tarefa.getEstado());
+
             stmt.executeUpdate();
             ConexaoBancoDados.commit();
         } catch (SQLException e) {
@@ -32,16 +33,16 @@ public class TarefaDAO {
     }
 
     public void atualizarTarefa(Tarefa tarefa) {
-        String sql = "UPDATE Tarefa SET Nome=?, Descricao=?, HorasTrabalhadas=?, ID_Projeto=?, ID_Pessoa=? WHERE ID_Tarefa=?";
+        String sql = "UPDATE Tarefa SET Nome=?, Descricao=?, HorasTrabalhadas=?, DataEntrega=?, ID_Projeto=?, Estado=? WHERE ID_Tarefa=?";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao();
-                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, tarefa.getNome());
             stmt.setString(2, tarefa.getDescricao());
             stmt.setTime(3, tarefa.getHorasTrabalhadas());
-            stmt.setInt(4, tarefa.getID_Projeto());
-            stmt.setInt(5, tarefa.getID_Pessoa());
-            stmt.setInt(6, tarefa.getID_Tarefa());
+            stmt.setDate(4, new java.sql.Date(tarefa.getDataEntrega().getTime()));
+            stmt.setInt(5, tarefa.getID_Projeto());
+            stmt.setBoolean(6, tarefa.getEstado());
+            stmt.setInt(7, tarefa.getID_Tarefa());
             stmt.executeUpdate();
             ConexaoBancoDados.commit();
         } catch (SQLException e) {
@@ -55,8 +56,7 @@ public class TarefaDAO {
     public void excluirTarefa(int idTarefa) {
         String sql = "DELETE FROM Tarefa WHERE ID_Tarefa=?";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao();
-                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, idTarefa);
             stmt.executeUpdate();
             ConexaoBancoDados.commit();
@@ -72,8 +72,7 @@ public class TarefaDAO {
         String sql = "SELECT * FROM Tarefa WHERE ID_Tarefa=?";
         Tarefa tarefa = null;
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao();
-                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, idTarefa);
             ResultSet resultado = stmt.executeQuery();
 
@@ -81,9 +80,10 @@ public class TarefaDAO {
                 String nome = resultado.getString("Nome");
                 String descricao = resultado.getString("Descricao");
                 Time horasTrabalhadas = resultado.getTime("HorasTrabalhadas");
+                java.sql.Date dataEntrega = resultado.getDate("DataEntrega");
                 int idProjeto = resultado.getInt("ID_Projeto");
-                int idPessoa = resultado.getInt("ID_Pessoa");
-                tarefa = new Tarefa(idTarefa, nome, descricao, horasTrabalhadas, idProjeto, idPessoa);
+                boolean Estado = resultado.getBoolean("Estado");
+                tarefa = new Tarefa(idTarefa, nome, descricao, horasTrabalhadas, idProjeto, dataEntrega, Estado);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -98,17 +98,16 @@ public class TarefaDAO {
         List<Tarefa> listaTarefas = new ArrayList<>();
         String sql = "SELECT * FROM Tarefa";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao();
-                PreparedStatement stmt = conexao.prepareStatement(sql);
-                ResultSet resultado = stmt.executeQuery()) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql); ResultSet resultado = stmt.executeQuery()) {
             while (resultado.next()) {
                 int idTarefa = resultado.getInt("ID_Tarefa");
                 String nome = resultado.getString("Nome");
                 String descricao = resultado.getString("Descricao");
                 Time horasTrabalhadas = resultado.getTime("HorasTrabalhadas");
+                java.sql.Date dataEntrega = resultado.getDate("DataEntrega");
                 int idProjeto = resultado.getInt("ID_Projeto");
-                int idPessoa = resultado.getInt("ID_Pessoa");
-                Tarefa tarefa = new Tarefa(idTarefa, nome, descricao, horasTrabalhadas, idProjeto, idPessoa);
+                boolean Estado = resultado.getBoolean("Estado");
+                Tarefa tarefa = new Tarefa(idTarefa, nome, descricao, horasTrabalhadas, idProjeto, dataEntrega, Estado);
                 listaTarefas.add(tarefa);
             }
         } catch (SQLException e) {

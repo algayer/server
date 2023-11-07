@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class Projeto implements Serializable {
+
     private static final long serialVersionUID = 1L;
 
     private int ID_Projeto;
@@ -12,29 +13,34 @@ public class Projeto implements Serializable {
     private Date DataEntrega;
     private Date DataInicial;
     private int ID_Equipe;
-    private int ID_Pessoa;
+    private String nomeEquipe;
+    private boolean Estado;
 
     public Projeto() {
         // Construtor vazio é necessário para serialização
     }
 
-    public Projeto(int ID_Projeto, String Nome, String Descricao, Date DataEntrega, Date DataInicial, int ID_Equipe, int ID_Pessoa) {
+    public Projeto(int ID_Projeto, String Nome, String Descricao, Date DataEntrega, Date DataInicial, int ID_Equipe, boolean Estado) {
         this.ID_Projeto = ID_Projeto;
         this.Nome = Nome;
         this.Descricao = Descricao;
         this.DataEntrega = DataEntrega;
         this.DataInicial = DataInicial;
         this.ID_Equipe = ID_Equipe;
-        this.ID_Pessoa = ID_Pessoa;
+        this.Estado = Estado;
     }
-    
-    public Projeto(int ID_Projeto, String Nome, String Descricao, Date DataEntrega, Date DataInicial, int ID_Equipe) {
-        this.ID_Projeto = ID_Projeto;
+
+    public Projeto(String Nome, String Descricao, Date DataEntrega, Date DataInicial, int ID_Equipe, boolean Estado) {
         this.Nome = Nome;
         this.Descricao = Descricao;
         this.DataEntrega = DataEntrega;
         this.DataInicial = DataInicial;
         this.ID_Equipe = ID_Equipe;
+        this.Estado = Estado;
+    }
+
+    public Projeto(int ID_Projeto) {
+        this.ID_Projeto = ID_Projeto;
     }
 
     // Getters e Setters
@@ -44,14 +50,6 @@ public class Projeto implements Serializable {
 
     public void setID_Projeto(int ID_Projeto) {
         this.ID_Projeto = ID_Projeto;
-    }
-    
-    public int getID_Pessoa() {
-        return ID_Pessoa;
-    }
-
-    public void setID_Pessoa(int ID_Pessoa) {
-        this.ID_Pessoa = ID_Pessoa;
     }
 
     public String getNome() {
@@ -94,17 +92,42 @@ public class Projeto implements Serializable {
         this.ID_Equipe = ID_Equipe;
     }
 
+    public String getNomeEquipe() {
+        return nomeEquipe;
+    }
+
+    public void setNomeEquipe(String nomeEquipe) {
+        this.nomeEquipe = nomeEquipe;
+    }
+
+    public boolean getEstado() {
+        return Estado;
+    }
+
+    public void setEstado(boolean Estado) {
+        this.Estado = Estado;
+    }
+
     @Override
     public String toString() {
-        return "Projeto{" +
-                "ID_Projeto=" + ID_Projeto +
-                ", Nome='" + Nome + '\'' +
-                ", Descricao='" + Descricao + '\'' +
-                ", DataEntrega=" + DataEntrega +
-                ", DataInicial=" + DataInicial +
-                ", ID_Equipe=" + ID_Equipe +
-                '}';
+        return "Projeto{"
+                + "ID_Projeto=" + ID_Projeto
+                + ", Nome='" + Nome + '\''
+                + ", Descricao='" + Descricao + '\''
+                + ", DataEntrega=" + DataEntrega
+                + ", DataInicial=" + DataInicial
+                + ", ID_Equipe=" + ID_Equipe
+                + ", Estado =" + Estado
+                + '}';
+    }
+
+    public String getEstadoLiteral() {
+        String retorno;
+        if (Estado == true) {
+            retorno = "Completo";
+        } else {
+            retorno = "Em andamento";
+        }
+        return retorno;
     }
 }
-
-

@@ -11,14 +11,15 @@ import java.util.List;
 public class ProjetoDAO {
 
     public void inserirProjeto(Projeto projeto) {
-        String sql = "INSERT INTO Projeto (nome, Descricao, DataEntrega, DataInicial) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Projeto (nome, Descricao, DataEntrega, DataInicial, ID_Equipe, Estado) VALUES (?, ?, ?, ?,?,?)";
 
-        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, projeto.getNome());
             stmt.setString(2, projeto.getDescricao());
             stmt.setDate(3, new java.sql.Date(projeto.getDataEntrega().getTime()));
             stmt.setDate(4, new java.sql.Date(projeto.getDataInicial().getTime()));
-
+            stmt.setInt(5, projeto.getID_Equipe());
+            stmt.setBoolean(6, projeto.getEstado());
             stmt.executeUpdate();
             ConexaoBancoDados.commit(); // Realiza o commit da transação
         } catch (SQLException e) {
@@ -30,15 +31,15 @@ public class ProjetoDAO {
     }
 
     public void atualizarProjeto(Projeto projeto) {
-        String sql = "UPDATE Projeto SET nome=?, Descricao=?, DataEntrega=?, DataInicial=? WHERE ID_Projeto=?";
+        String sql = "UPDATE Projeto SET nome=?, Descricao=?, DataEntrega=?, DataInicial=?, Estado=? WHERE ID_Projeto=?";
 
-        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, projeto.getNome());
             stmt.setString(2, projeto.getDescricao());
             stmt.setDate(3, new java.sql.Date(projeto.getDataEntrega().getTime()));
             stmt.setDate(4, new java.sql.Date(projeto.getDataInicial().getTime()));
-
-            stmt.setInt(5, projeto.getID_Projeto());
+            stmt.setBoolean(5, projeto.getEstado());
+            stmt.setInt(6, projeto.getID_Projeto());
             stmt.executeUpdate();
             ConexaoBancoDados.commit(); // Realiza o commit da transação
         } catch (SQLException e) {
@@ -52,7 +53,7 @@ public class ProjetoDAO {
     public void excluirProjeto(int idProjeto) {
         String sql = "DELETE FROM Projeto WHERE ID_Projeto=?";
 
-        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, idProjeto);
             stmt.executeUpdate();
             ConexaoBancoDados.commit(); // Realiza o commit da transação
@@ -68,18 +69,18 @@ public class ProjetoDAO {
         String sql = "SELECT * FROM Projeto WHERE ID_Projeto=?";
         Projeto projeto = null;
 
-        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, idProjeto);
             ResultSet resultado = stmt.executeQuery();
 
             if (resultado.next()) {
-                String nome = resultado.getString("Nome");
+                String nome = resultado.getString("nome");
                 String descricao = resultado.getString("Descricao");
                 java.sql.Date dataEntrega = resultado.getDate("DataEntrega");
                 java.sql.Date dataInicial = resultado.getDate("DataInicial");
                 int ID_Equipe = resultado.getInt("ID_Equipe");
-                int ID_Pessoa = resultado.getInt("ID_Pessoa"); // Adicionado
-                projeto = new Projeto(idProjeto, nome, descricao, dataEntrega, dataInicial, ID_Equipe, ID_Pessoa); // Atualizado
+                boolean Estado = resultado.getBoolean("Estado");
+                projeto = new Projeto(idProjeto, nome, descricao, dataEntrega, dataInicial, ID_Equipe, Estado);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -92,55 +93,75 @@ public class ProjetoDAO {
 
     public List<Projeto> listarTodosProjetos() {
         List<Projeto> listaProjetos = new ArrayList<>();
-        String sql = "SELECT * FROM Projeto";
+        String sqlProjetos = "SELECT p.ID_Projeto, p.nome AS nome_projeto, p.Descricao, p.DataEntrega, p.DataInicial, p.ID_Equipe, p.Estado FROM Projeto p";
 
-        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql);  ResultSet resultado = stmt.executeQuery()) {
-            while (resultado.next()) {
-                int idProjeto = resultado.getInt("ID_Projeto");
-                String nome = resultado.getString("Nome");
-                String descricao = resultado.getString("Descricao");
-                java.sql.Date dataEntrega = resultado.getDate("DataEntrega");
-                java.sql.Date dataInicial = resultado.getDate("DataInicial");
-                int ID_Equipe = resultado.getInt("ID_Equipe");
-                int ID_Pessoa = resultado.getInt("ID_Pessoa"); // Adicionado
-                Projeto projeto = new Projeto(idProjeto, nome, descricao, dataEntrega, dataInicial, ID_Equipe, ID_Pessoa); // Atualizado
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmtProjetos = conexao.prepareStatement(sqlProjetos); ResultSet resultadoProjetos = stmtProjetos.executeQuery()) {
+
+            while (resultadoProjetos.next()) {
+                int idProjeto = resultadoProjetos.getInt("ID_Projeto");
+                String nomeProjeto = resultadoProjetos.getString("nome_projeto");
+                String descricao = resultadoProjetos.getString("Descricao");
+                java.sql.Date dataEntrega = resultadoProjetos.getDate("DataEntrega");
+                java.sql.Date dataInicial = resultadoProjetos.getDate("DataInicial");
+                int idEquipe = resultadoProjetos.getInt("ID_Equipe");
+                boolean Estado = resultadoProjetos.getBoolean("Estado");
+
+                Projeto projeto = new Projeto(idProjeto, nomeProjeto, descricao, dataEntrega, dataInicial, idEquipe, Estado);
+
+                // Agora, faça uma consulta para obter o nome da equipe com base no ID_Equipe
+                String sqlNomeEquipe = "SELECT Nome FROM Equipe WHERE ID_Equipe = ?";
+                try (PreparedStatement stmtNomeEquipe = conexao.prepareStatement(sqlNomeEquipe)) {
+                    stmtNomeEquipe.setInt(1, idEquipe);
+                    ResultSet resultadoNomeEquipe = stmtNomeEquipe.executeQuery();
+                    if (resultadoNomeEquipe.next()) {
+                        String nomeEquipe = resultadoNomeEquipe.getString("Nome");
+                        projeto.setNomeEquipe(nomeEquipe);
+                    }
+                }
+
                 listaProjetos.add(projeto);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            ConexaoBancoDados.fecharConexao(); // Fecha a conexão
         }
-
         return listaProjetos;
     }
 
-    public List<Projeto> listarProjetosPorUsuario(int idPessoa) {
-        List<Projeto> listaProjetos = new ArrayList<>();
-        String sql = "SELECT * FROM Projeto WHERE ID_Pessoa=?";
+    public ArrayList<Projeto> getProjetosPorNome(String nome) {
+        ArrayList<Projeto> listaProjetosPorNome = new ArrayList<>();
+        String sql = "SELECT p.ID_Projeto, p.nome AS nome_projeto, p.Descricao, p.DataEntrega, p.DataInicial, p.ID_Equipe, p.Estado FROM Projeto p WHERE p.nome LIKE ?";
 
-        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
-
-            stmt.setInt(1, idPessoa);
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            stmt.setString(1, "%" + nome + "%");
             ResultSet resultado = stmt.executeQuery();
 
             while (resultado.next()) {
                 int idProjeto = resultado.getInt("ID_Projeto");
-                String nome = resultado.getString("Nome");
+                String nomeProjeto = resultado.getString("nome_projeto");
                 String descricao = resultado.getString("Descricao");
                 java.sql.Date dataEntrega = resultado.getDate("DataEntrega");
                 java.sql.Date dataInicial = resultado.getDate("DataInicial");
-                int ID_Equipe = resultado.getInt("ID_Equipe");
-                Projeto projeto = new Projeto(idProjeto, nome, descricao, dataEntrega, dataInicial, ID_Equipe);
-                listaProjetos.add(projeto);
+                int idEquipe = resultado.getInt("ID_Equipe");
+                boolean Estado = resultado.getBoolean("Estado");
+
+                Projeto projeto = new Projeto(idProjeto, nomeProjeto, descricao, dataEntrega, dataInicial, idEquipe, Estado);
+
+                String sqlNomeEquipe = "SELECT Nome FROM Equipe WHERE ID_Equipe = ?";
+                try (PreparedStatement stmtNomeEquipe = conexao.prepareStatement(sqlNomeEquipe)) {
+                    stmtNomeEquipe.setInt(1, idEquipe);
+                    ResultSet resultadoNomeEquipe = stmtNomeEquipe.executeQuery();
+                    if (resultadoNomeEquipe.next()) {
+                        String nomeEquipe = resultadoNomeEquipe.getString("Nome");
+                        projeto.setNomeEquipe(nomeEquipe);
+                    }
+                }
+                // Aqui, você pode adicionar a lógica para obter o nome da equipe e atribuí-lo ao projeto, similar ao exemplo anterior.
+                listaProjetosPorNome.add(projeto);
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            ConexaoBancoDados.fecharConexao(); // Fecha a conexão
         }
-
-        return listaProjetos;
+        return listaProjetosPorNome;
     }
 
 }

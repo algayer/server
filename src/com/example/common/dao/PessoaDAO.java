@@ -9,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PessoaDAO {
+
     public void inserirPessoa(Pessoa pessoa) {
         String sql = "INSERT INTO Pessoa (cpf, Usuario, Email, Senha, Tipo) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao();
-                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, pessoa.getCpf());
             stmt.setString(2, pessoa.getUsuario());
             stmt.setString(3, pessoa.getEmail());
@@ -32,8 +32,7 @@ public class PessoaDAO {
     public void atualizarPessoa(Pessoa pessoa) {
         String sql = "UPDATE Pessoa SET cpf=?, Usuario=?, Email=?, Senha=?, Tipo=? WHERE ID_Pessoa=?";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao();
-                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, pessoa.getCpf());
             stmt.setString(2, pessoa.getUsuario());
             stmt.setString(3, pessoa.getEmail());
@@ -53,8 +52,7 @@ public class PessoaDAO {
     public void excluirPessoa(int idPessoa) {
         String sql = "DELETE FROM Pessoa WHERE ID_Pessoa=?";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao();
-                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, idPessoa);
             stmt.executeUpdate();
             ConexaoBancoDados.commit(); // Realiza o commit da transação
@@ -70,8 +68,7 @@ public class PessoaDAO {
         String sql = "SELECT * FROM Pessoa WHERE ID_Pessoa=?";
         Pessoa pessoa = null;
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao();
-                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, idPessoa);
             ResultSet resultado = stmt.executeQuery();
 
@@ -96,9 +93,7 @@ public class PessoaDAO {
         List<Pessoa> listaPessoas = new ArrayList<>();
         String sql = "SELECT * FROM Pessoa";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao();
-                PreparedStatement stmt = conexao.prepareStatement(sql);
-                ResultSet resultado = stmt.executeQuery()) {
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql); ResultSet resultado = stmt.executeQuery()) {
             while (resultado.next()) {
                 int idPessoa = resultado.getInt("ID_Pessoa");
                 String cpf = resultado.getString("cpf");
@@ -118,31 +113,29 @@ public class PessoaDAO {
         return listaPessoas;
     }
 
-    public Pessoa obterPessoaPorUsuarioESenha(String usuario, String senha) {
+    public Pessoa obterPessoaPorUsuarioESenha(String usuario, String senhaCriptografada) {
         String sql = "SELECT * FROM Pessoa WHERE Usuario=? AND Senha=?";
         Pessoa pessoa = null;
-    
-        try (Connection conexao = ConexaoBancoDados.abrirConexao();
-                PreparedStatement stmt = conexao.prepareStatement(sql)) {
+
+        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, usuario);
-            stmt.setString(2, senha);
+            stmt.setString(2, senhaCriptografada);
             ResultSet resultado = stmt.executeQuery();
-    
+
             if (resultado.next()) {
                 int idPessoa = resultado.getInt("ID_Pessoa");
                 String cpf = resultado.getString("cpf");
                 String email = resultado.getString("Email");
                 int tipo = resultado.getInt("Tipo");
-                pessoa = new Pessoa(idPessoa, cpf, usuario, email, senha, tipo);
+                pessoa = new Pessoa(idPessoa, cpf, usuario, email, senhaCriptografada, tipo);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
             ConexaoBancoDados.fecharConexao(); // Fecha a conexão
         }
-    
+
         return pessoa;
     }
-    
-}
 
+}
