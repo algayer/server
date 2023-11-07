@@ -15,15 +15,13 @@ import com.example.common.utils.ResponseObject;
 import java.io.EOFException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.List;
 
 public class ServerMain {
 
     public static final int PORT = 8080;
-    private static final Logger LOGGER = Logger.getLogger(ServerMain.class.getName());
 
     private static final PessoaCRUDService pessoaService = new PessoaCRUDService();
     private static final EquipeCRUDService equipeService = new EquipeCRUDService();
@@ -33,7 +31,7 @@ public class ServerMain {
     private static final String TERMINATION_STRING = "TERMINATION_SIGNAL";
 
     public static void main(String[] args) {
-        try ( ServerSocket serverSocket = new ServerSocket(PORT)) {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Servidor iniciado na porta " + PORT);
 
             while (true) {
@@ -47,33 +45,28 @@ public class ServerMain {
     }
 
     private static void handleClient(Socket clientSocket) {
-        try (ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
-             ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())) {
-    
+        try (ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream()); ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())) {
+
             System.out.println("Cliente conectado: " + clientSocket.getRemoteSocketAddress());
-            LOGGER.log(Level.INFO, "Iniciando manipulação do cliente: {0}", clientSocket.getRemoteSocketAddress());
-    
+
             while (true) {
                 RequestObject request;
                 try {
                     request = (RequestObject) in.readObject();
-                    LOGGER.log(Level.INFO, "Requisição recebida: {0}, Dados: {1}", new Object[]{request.getOperation(), request.getData()});
                     System.out.println("Requisição recebida: " + request.getOperation() + ", Dados: " + request.getData());
                 } catch (EOFException e) {
-                    LOGGER.log(Level.WARNING, "Conexão finalizada pelo cliente");
                     System.out.println("Conexão finalizada pelo cliente");
                     return;
                 }
-    
+
                 ResponseObject response = processRequest(request);
                 System.out.println("Enviando resposta: Sucesso=" + response.isSuccess() + ", Mensagem: " + response.getMessage() + ", Dados: " + response.getData());
-                
+
                 out.writeObject(response);
                 out.flush();
             }
-    
+
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Erro ao manipular cliente", e);
             e.printStackTrace();
         } finally {
             try {
@@ -118,6 +111,23 @@ public class ServerMain {
                     return new ResponseObject(true, "Equipe excluída com sucesso", null);
                 case "listarTodosEquipe":
                     return new ResponseObject(true, "", equipeService.listarTodos());
+                // Operações para Equipe
+                case "listarMembrosEquipe":
+                    int equipeId = (int) request.getData(); // Suponha que você receba o ID da equipe como um parâmetro.
+
+                    // Verifique se o ID da equipe é válido (você pode adicionar validações adicionais, se necessário).
+                    if (equipeId > 0) {
+                        List<Pessoa> membrosEquipe = equipeService.listarMembros(equipeId);
+
+                        // Verifique se a lista de membros da equipe não está vazia.
+                        if (!membrosEquipe.isEmpty()) {
+                            return new ResponseObject(true, "Membros da equipe listados com sucesso", membrosEquipe);
+                        } else {
+                            return new ResponseObject(false, "Nenhum membro encontrado para a equipe especificada", null);
+                        }
+                    } else {
+                        return new ResponseObject(false, "ID da equipe não foi fornecido ou é inválido", null);
+                    }
 
                 // Operações para Projeto
                 case "criarProjeto":
@@ -133,8 +143,8 @@ public class ServerMain {
                     return new ResponseObject(true, "Projeto excluído com sucesso", null);
                 case "listarTodosProjeto":
                     return new ResponseObject(true, "", projetoService.listarTodos());
-                case "listarProjetosPorUsuario":
-                    return new ResponseObject(true, "listarProjetosPorUsuario", projetoService.listarProjetosPorUsuario((int) request.getData()));
+                    case "getProjetosPorNome":
+                    return new ResponseObject(true, "", projetoService.listarTodosPorNome((String) request.getData()));
 
                 // Operações para Tarefa
                 case "criarTarefa":
