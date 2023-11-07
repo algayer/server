@@ -143,8 +143,10 @@ public class ServerMain {
                     return new ResponseObject(true, "Projeto excluído com sucesso", null);
                 case "listarTodosProjeto":
                     return new ResponseObject(true, "", projetoService.listarTodos());
-                    case "getProjetosPorNome":
+                case "getProjetosPorNome":
                     return new ResponseObject(true, "", projetoService.listarTodosPorNome((String) request.getData()));
+                case "listarProjetosPorUsuario":
+                    return new ResponseObject(true, "listarProjetosPorUsuario", projetoService.listarProjetosPorUsuario((int) request.getData()));
 
                 // Operações para Tarefa
                 case "criarTarefa":

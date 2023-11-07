@@ -13,6 +13,7 @@ public class Tarefa implements Serializable {
     private String Descricao;
     private Time HorasTrabalhadas;
     private int ID_Projeto;
+    private int ID_Pessoa;
     private Date dataEntrega;
     private boolean Estado;
 
@@ -20,17 +21,19 @@ public class Tarefa implements Serializable {
         // Construtor vazio é necessário para serialização
     }
 
-    public Tarefa(int ID_Tarefa, String Nome, String Descricao, Time HorasTrabalhadas, int ID_Projeto, Date DataEntrega, boolean Estado) {
+    public Tarefa(int ID_Tarefa, String Nome, String Descricao, Time HorasTrabalhadas, int ID_Projeto, int ID_Pessoa, Date dataEntrega, boolean Estado) {
         this.ID_Tarefa = ID_Tarefa;
         this.Nome = Nome;
         this.Descricao = Descricao;
         this.HorasTrabalhadas = HorasTrabalhadas;
         this.ID_Projeto = ID_Projeto;
-        this.dataEntrega = DataEntrega;
+        this.ID_Pessoa = ID_Pessoa;
+        this.dataEntrega = dataEntrega;
         this.Estado = Estado;
     }
-
-    public Tarefa(String Nome, String Descricao, Time HorasTrabalhadas, int ID_Projeto, Date dataEntrega, boolean Estado) {
+    
+    public Tarefa(int ID_Tarefa, String Nome, String Descricao, Time HorasTrabalhadas, int ID_Projeto, Date dataEntrega, boolean Estado) {
+        this.ID_Tarefa = ID_Tarefa;
         this.Nome = Nome;
         this.Descricao = Descricao;
         this.HorasTrabalhadas = HorasTrabalhadas;
@@ -94,6 +97,14 @@ public class Tarefa implements Serializable {
 
     public void setEstado(boolean Estado) {
         this.Estado = Estado;
+    }
+
+    public int getID_Pessoa() {
+        return ID_Pessoa;
+    }
+
+    public void setID_Pessoa(int ID_Pessoa) {
+        this.ID_Pessoa = ID_Pessoa;
     }
 
     @Override

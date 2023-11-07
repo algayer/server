@@ -82,8 +82,8 @@ public class TarefaDAO {
                 Time horasTrabalhadas = resultado.getTime("HorasTrabalhadas");
                 java.sql.Date dataEntrega = resultado.getDate("DataEntrega");
                 int idProjeto = resultado.getInt("ID_Projeto");
-                boolean Estado = resultado.getBoolean("Estado");
-                tarefa = new Tarefa(idTarefa, nome, descricao, horasTrabalhadas, idProjeto, dataEntrega, Estado);
+                boolean estado = resultado.getBoolean("Estado");
+                tarefa = new Tarefa(idTarefa, nome, descricao, horasTrabalhadas, idProjeto, dataEntrega, estado);
             }
         } catch (SQLException e) {
             e.printStackTrace();

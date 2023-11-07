@@ -19,6 +19,12 @@ public class Equipe implements Serializable{
         this.ID_Equipe = ID_Equipe;
         this.NomeEquipe = NomeEquipe;
     }
+    
+    public Equipe(int ID_Equipe, String NomeEquipe, List<Pessoa> membros) {
+        this.ID_Equipe = ID_Equipe;
+        this.NomeEquipe = NomeEquipe;
+        this.membros = membros;
+    }
 
     public Equipe(int ID_Equipe) {
         this.ID_Equipe = ID_Equipe;
@@ -26,12 +32,6 @@ public class Equipe implements Serializable{
 
     public Equipe(String NomeEquipe) {
         this.NomeEquipe = NomeEquipe;
-    }
-
-    public Equipe(int ID_Equipe, String NomeEquipe, List<Pessoa> membros) {
-        this.ID_Equipe = ID_Equipe;
-        this.NomeEquipe = NomeEquipe;
-        this.membros = membros;
     }
 
     public Equipe(String NomeEquipe, List<Pessoa> membros) {
