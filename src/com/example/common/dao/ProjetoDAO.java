@@ -164,35 +164,35 @@ public class ProjetoDAO {
         return listaProjetosPorNome;
     }
     
-    public List<Projeto> listarProjetosPorUsuario(int idPessoa) {
-        List<Projeto> listaProjetos = new ArrayList<>();
-        String sql = "SELECT * FROM Projeto WHERE ID_Pessoa=?";
+    public List<Projeto> listarProjetosPorEquipe(int idEquipe) {
+    List<Projeto> listaProjetos = new ArrayList<>();
+    String sql = "SELECT * FROM Projeto WHERE ID_Equipe=?";
 
-        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
+    try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
 
-            stmt.setInt(1, idPessoa);
-            ResultSet resultado = stmt.executeQuery();
+        stmt.setInt(1, idEquipe);
+        ResultSet resultado = stmt.executeQuery();
 
-            while (resultado.next()) {
-                int idProjeto = resultado.getInt("ID_Projeto");
-                String nomeProjeto = resultado.getString("Nome");
-                String descricao = resultado.getString("Descricao");
-                java.sql.Date dataEntrega = resultado.getDate("DataEntrega");
-                java.sql.Date dataInicial = resultado.getDate("DataInicial");
-                int idEquipe = resultado.getInt("ID_Equipe");
-                boolean Estado = resultado.getBoolean("Estado");
+        while (resultado.next()) {
+            int idProjeto = resultado.getInt("ID_Projeto");
+            String nomeProjeto = resultado.getString("Nome");
+            String descricao = resultado.getString("Descricao");
+            java.sql.Date dataEntrega = resultado.getDate("DataEntrega");
+            java.sql.Date dataInicial = resultado.getDate("DataInicial");
+            boolean Estado = resultado.getBoolean("Estado");
 
-                Projeto projeto = new Projeto(idProjeto, nomeProjeto, descricao, dataEntrega, dataInicial, idEquipe, Estado);
-                listaProjetos.add(projeto);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            ConexaoBancoDados.fecharConexao(); // Fecha a conexão
+            Projeto projeto = new Projeto(idProjeto, nomeProjeto, descricao, dataEntrega, dataInicial, idEquipe, Estado);
+            listaProjetos.add(projeto);
         }
-
-        return listaProjetos;
+    } catch (SQLException e) {
+        e.printStackTrace();
+    } finally {
+        ConexaoBancoDados.fecharConexao(); // Fecha a conexão
     }
+
+    return listaProjetos;
+}
+
 
 }
 

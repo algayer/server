@@ -87,7 +87,7 @@ public class EquipeDAO {
 
             // Atualizar nome da equipe (se necessário)
             String sqlUpdateEquipe = "UPDATE Equipe SET nome = ? WHERE ID_Equipe = ?";
-            try (PreparedStatement stmtUpdateEquipe = conexao.prepareStatement(sqlUpdateEquipe)) {
+            try ( PreparedStatement stmtUpdateEquipe = conexao.prepareStatement(sqlUpdateEquipe)) {
                 stmtUpdateEquipe.setString(1, equipe.getNome());
                 stmtUpdateEquipe.setInt(2, equipe.getID_Equipe());
                 int rowsAffected = stmtUpdateEquipe.executeUpdate();
@@ -96,7 +96,7 @@ public class EquipeDAO {
 
             // Identificar membros existentes
             String sqlSelectMembros = "SELECT Pessoa_ID_Pessoa FROM Pessoa_has_Equipe WHERE Equipe_ID_Equipe = ?";
-            try (PreparedStatement stmtSelectMembros = conexao.prepareStatement(sqlSelectMembros)) {
+            try ( PreparedStatement stmtSelectMembros = conexao.prepareStatement(sqlSelectMembros)) {
                 stmtSelectMembros.setInt(1, equipe.getID_Equipe());
                 ResultSet rs = stmtSelectMembros.executeQuery();
                 while (rs.next()) {
@@ -108,7 +108,7 @@ public class EquipeDAO {
             // Atualizar membros
             String sqlInsertMembro = "INSERT INTO Pessoa_has_Equipe (Pessoa_ID_Pessoa, Equipe_ID_Equipe) VALUES (?, ?)";
             String sqlDeleteMembro = "DELETE FROM Pessoa_has_Equipe WHERE Pessoa_ID_Pessoa = ? AND Equipe_ID_Equipe = ?";
-            try (PreparedStatement stmtInsertMembro = conexao.prepareStatement(sqlInsertMembro); PreparedStatement stmtDeleteMembro = conexao.prepareStatement(sqlDeleteMembro)) {
+            try ( PreparedStatement stmtInsertMembro = conexao.prepareStatement(sqlInsertMembro);  PreparedStatement stmtDeleteMembro = conexao.prepareStatement(sqlDeleteMembro)) {
 
                 for (Pessoa membro : equipe.getMembros()) {
                     if (!membrosExistentes.contains(membro.getID_Pessoa())) {
@@ -155,7 +155,7 @@ public class EquipeDAO {
     public void excluirEquipe(int idEquipe) {
         String sql = "DELETE FROM Equipe WHERE ID_equipe=?";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, idEquipe);
             stmt.executeUpdate();
             ConexaoBancoDados.commit(); // Realiza o commit da transação
@@ -171,7 +171,7 @@ public class EquipeDAO {
         String sql = "SELECT * FROM Equipe WHERE ID_equipe=?";
         Equipe equipe = null;
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, idEquipe);
             ResultSet resultado = stmt.executeQuery();
 
@@ -192,7 +192,7 @@ public class EquipeDAO {
         List<Equipe> listaEquipes = new ArrayList<>();
         String sql = "SELECT * FROM Equipe";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql); ResultSet resultado = stmt.executeQuery()) {
+        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql);  ResultSet resultado = stmt.executeQuery()) {
             while (resultado.next()) {
                 int idEquipe = resultado.getInt("ID_equipe");
                 String nome = resultado.getString("nome");
@@ -211,7 +211,7 @@ public class EquipeDAO {
     public List<Pessoa> listarMembrosDaEquipe(int idEquipe) {
         String sql = "SELECT p.* from Pessoa p JOIN Pessoa_has_equipe pe ON p.ID_Pessoa = pe.Pessoa_ID_Pessoa WHERE pe.Equipe_ID_Equipe = ?";
         List<Pessoa> membros = new ArrayList<>();
-        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, idEquipe);
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
@@ -232,4 +232,26 @@ public class EquipeDAO {
         }
         return membros;
     }
+
+    public List<Equipe> obterEquipePorPessoaId(int idPessoa) {
+        List<Equipe> equipes = new ArrayList<>();
+        String sql = "SELECT e.* FROM Equipe e JOIN Pessoa_has_Equipe pe ON e.ID_Equipe = pe.Equipe_ID_Equipe WHERE pe.Pessoa_ID_Pessoa = ?";
+        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            stmt.setInt(1, idPessoa);
+            try ( ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int idEquipe = rs.getInt("ID_Equipe");
+                    String nome = rs.getString("nome");
+                    Equipe equipe = new Equipe(idEquipe, nome);
+                    equipes.add(equipe);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            ConexaoBancoDados.fecharConexao();
+        }
+        return equipes;
+    }
+
 }

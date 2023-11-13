@@ -31,7 +31,7 @@ public class ServerMain {
     private static final String TERMINATION_STRING = "TERMINATION_SIGNAL";
 
     public static void main(String[] args) {
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+        try ( ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Servidor iniciado na porta " + PORT);
 
             while (true) {
@@ -45,7 +45,7 @@ public class ServerMain {
     }
 
     private static void handleClient(Socket clientSocket) {
-        try (ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream()); ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())) {
+        try ( ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());  ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())) {
 
             System.out.println("Cliente conectado: " + clientSocket.getRemoteSocketAddress());
 
@@ -145,8 +145,12 @@ public class ServerMain {
                     return new ResponseObject(true, "", projetoService.listarTodos());
                 case "getProjetosPorNome":
                     return new ResponseObject(true, "", projetoService.listarTodosPorNome((String) request.getData()));
-                case "listarProjetosPorUsuario":
-                    return new ResponseObject(true, "listarProjetosPorUsuario", projetoService.listarProjetosPorUsuario((int) request.getData()));
+                //case "listarProjetosPorUsuario":
+                //return new ResponseObject(true, "listarProjetosPorUsuario", projetoService.listarProjetosPorUsuario((int) request.getData()));
+                case "listarProjetosPorEquipe":
+                    int idEquipe = (int) request.getData();
+                    List<Projeto> projetosDaEquipe = projetoService.listarProjetosPorEquipe(idEquipe);
+                    return new ResponseObject(true, "Projetos listados com sucesso", projetosDaEquipe);
 
                 // Operações para Tarefa
                 case "criarTarefa":

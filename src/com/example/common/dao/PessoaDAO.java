@@ -1,5 +1,6 @@
 package com.example.common.dao;
 
+import com.example.common.model.Equipe;
 import com.example.common.model.Pessoa;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,7 +14,7 @@ public class PessoaDAO {
     public void inserirPessoa(Pessoa pessoa) {
         String sql = "INSERT INTO Pessoa (cpf, Usuario, Email, Senha, Tipo) VALUES (?, ?, ?, ?, ?)";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, pessoa.getCpf());
             stmt.setString(2, pessoa.getUsuario());
             stmt.setString(3, pessoa.getEmail());
@@ -32,7 +33,7 @@ public class PessoaDAO {
     public void atualizarPessoa(Pessoa pessoa) {
         String sql = "UPDATE Pessoa SET cpf=?, Usuario=?, Email=?, Senha=?, Tipo=? WHERE ID_Pessoa=?";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, pessoa.getCpf());
             stmt.setString(2, pessoa.getUsuario());
             stmt.setString(3, pessoa.getEmail());
@@ -52,7 +53,7 @@ public class PessoaDAO {
     public void excluirPessoa(int idPessoa) {
         String sql = "DELETE FROM Pessoa WHERE ID_Pessoa=?";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, idPessoa);
             stmt.executeUpdate();
             ConexaoBancoDados.commit(); // Realiza o commit da transação
@@ -68,7 +69,7 @@ public class PessoaDAO {
         String sql = "SELECT * FROM Pessoa WHERE ID_Pessoa=?";
         Pessoa pessoa = null;
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setInt(1, idPessoa);
             ResultSet resultado = stmt.executeQuery();
 
@@ -93,7 +94,7 @@ public class PessoaDAO {
         List<Pessoa> listaPessoas = new ArrayList<>();
         String sql = "SELECT * FROM Pessoa";
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql); ResultSet resultado = stmt.executeQuery()) {
+        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql);  ResultSet resultado = stmt.executeQuery()) {
             while (resultado.next()) {
                 int idPessoa = resultado.getInt("ID_Pessoa");
                 String cpf = resultado.getString("cpf");
@@ -114,20 +115,44 @@ public class PessoaDAO {
     }
 
     public Pessoa obterPessoaPorUsuarioESenha(String usuario, String senhaCriptografada) {
-        String sql = "SELECT * FROM Pessoa WHERE Usuario=? AND Senha=?";
+        String sql = "SELECT p.*, e.* "
+                + "FROM Pessoa p "
+                + "LEFT JOIN Pessoa_has_Equipe pe ON p.ID_Pessoa = pe.Pessoa_ID_Pessoa "
+                + "LEFT JOIN Equipe e ON pe.Equipe_ID_Equipe = e.ID_Equipe "
+                + "WHERE p.Usuario=? AND p.Senha=?";
+
         Pessoa pessoa = null;
 
-        try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
+        try ( Connection conexao = ConexaoBancoDados.abrirConexao();  PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, usuario);
             stmt.setString(2, senhaCriptografada);
             ResultSet resultado = stmt.executeQuery();
 
-            if (resultado.next()) {
-                int idPessoa = resultado.getInt("ID_Pessoa");
-                String cpf = resultado.getString("cpf");
-                String email = resultado.getString("Email");
-                int tipo = resultado.getInt("Tipo");
-                pessoa = new Pessoa(idPessoa, cpf, usuario, email, senhaCriptografada, tipo);
+            List<Equipe> equipes = new ArrayList<>();
+
+            while (resultado.next()) {
+                if (pessoa == null) { // A pessoa será criada apenas na primeira iteração
+                    int idPessoa = resultado.getInt("ID_Pessoa");
+                    String cpf = resultado.getString("cpf");
+                    String email = resultado.getString("Email");
+                    int tipo = resultado.getInt("Tipo");
+                    pessoa = new Pessoa(idPessoa, cpf, usuario, email, senhaCriptografada, tipo);
+                }
+
+                int equipeId = resultado.getInt("ID_Equipe");
+                if (!resultado.wasNull()) {
+                    String nomeEquipe = resultado.getString("Nome"); // Assumindo que a tabela Equipe tem um campo 'Nome'
+                    Equipe equipe = new Equipe(equipeId, nomeEquipe);
+                    equipes.add(equipe);
+                }
+            }
+
+            if (pessoa != null) {
+                pessoa.setEquipes(equipes);
+                System.out.println("Equipes associadas à pessoa: " + pessoa.getEquipes().size());
+                for (Equipe equipe : pessoa.getEquipes()) {
+                    System.out.println("Equipe: " + equipe.getNome());
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
