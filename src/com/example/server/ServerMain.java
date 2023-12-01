@@ -18,6 +18,7 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.Map;
 
 public class ServerMain {
 
@@ -96,6 +97,21 @@ public class ServerMain {
                     return new ResponseObject(true, "", pessoaService.listarTodos());
                 case "login":
                     return pessoaService.login((Pessoa) request.getData());
+                case "validarEmail":
+                    return new ResponseObject(true, "", pessoaService.validarEmail((String) request.getData()));
+                case "mudarSenha":
+                    pessoaService.atualizarSenha((Pessoa) request.getData());
+                    return new ResponseObject(true, "senha atualizada com sucesso", null);
+                case "validarSenha":
+                    return new ResponseObject(true, "", pessoaService.validarSenha((String) request.getData()));
+                case "trocarSenha":
+                    // Aqui você deve extrair o email, a senha antiga e a nova senha
+                    Map<String, String> dados = (Map<String, String>) request.getData();
+                    String email = dados.get("email");
+                    String senhaAntiga = dados.get("senhaAntiga");
+                    String novaSenha = dados.get("novaSenha");
+                    // Agora chame o método apropriado do serviço PessoaCRUDService
+                    return pessoaService.trocarSenha(email, senhaAntiga, novaSenha);
 
                 // Operações para Equipe
                 case "criarEquipe":
