@@ -105,12 +105,10 @@ public class ServerMain {
                 case "validarSenha":
                     return new ResponseObject(true, "", pessoaService.validarSenha((String) request.getData()));
                 case "trocarSenha":
-                    // Aqui você deve extrair o email, a senha antiga e a nova senha
                     Map<String, String> dados = (Map<String, String>) request.getData();
                     String email = dados.get("email");
                     String senhaAntiga = dados.get("senhaAntiga");
                     String novaSenha = dados.get("novaSenha");
-                    // Agora chame o método apropriado do serviço PessoaCRUDService
                     return pessoaService.trocarSenha(email, senhaAntiga, novaSenha);
 
                 // Operações para Equipe
