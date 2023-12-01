@@ -108,7 +108,7 @@ public class ProjetoDAO {
 
                 Projeto projeto = new Projeto(idProjeto, nomeProjeto, descricao, dataEntrega, dataInicial, idEquipe, Estado);
 
-                // Agora, faça uma consulta para obter o nome da equipe com base no ID_Equipe
+                // consulta para obter o nome da equipe com base no ID_Equipe
                 String sqlNomeEquipe = "SELECT Nome FROM Equipe WHERE ID_Equipe = ?";
                 try (PreparedStatement stmtNomeEquipe = conexao.prepareStatement(sqlNomeEquipe)) {
                     stmtNomeEquipe.setInt(1, idEquipe);
@@ -155,7 +155,6 @@ public class ProjetoDAO {
                         projeto.setNomeEquipe(nomeEquipe);
                     }
                 }
-                // Aqui, você pode adicionar a lógica para obter o nome da equipe e atribuí-lo ao projeto, similar ao exemplo anterior.
                 listaProjetosPorNome.add(projeto);
             }
         } catch (SQLException e) {

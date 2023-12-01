@@ -94,7 +94,7 @@ public class EquipeDAO {
                 System.out.println("Nome da equipe atualizado, linhas afetadas: " + rowsAffected);
             }
 
-            // Identificar membros existentes
+            // Identifica os membros existentes
             String sqlSelectMembros = "SELECT Pessoa_ID_Pessoa FROM Pessoa_has_Equipe WHERE Equipe_ID_Equipe = ?";
             try ( PreparedStatement stmtSelectMembros = conexao.prepareStatement(sqlSelectMembros)) {
                 stmtSelectMembros.setInt(1, equipe.getID_Equipe());
@@ -105,7 +105,7 @@ public class EquipeDAO {
             }
             System.out.println("Membros existentes antes da atualização: " + membrosExistentes);
 
-            // Atualizar membros
+            // Atualiza membros
             String sqlInsertMembro = "INSERT INTO Pessoa_has_Equipe (Pessoa_ID_Pessoa, Equipe_ID_Equipe) VALUES (?, ?)";
             String sqlDeleteMembro = "DELETE FROM Pessoa_has_Equipe WHERE Pessoa_ID_Pessoa = ? AND Equipe_ID_Equipe = ?";
             try ( PreparedStatement stmtInsertMembro = conexao.prepareStatement(sqlInsertMembro);  PreparedStatement stmtDeleteMembro = conexao.prepareStatement(sqlDeleteMembro)) {

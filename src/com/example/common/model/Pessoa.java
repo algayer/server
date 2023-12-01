@@ -121,13 +121,14 @@ public class Pessoa implements Serializable {
     
     @Override
     public String toString() {
-        return "Pessoa{"
-                + "ID_Pessoa=" + ID_Pessoa
-                + ", cpf='" + cpf + '\''
-                + ", Usuario='" + Usuario + '\''
-                + ", Email='" + Email + '\''
-                + ", Senha='" + Senha + '\''
-                + '}';
+        return "Pessoa{" +
+                "ID_Pessoa=" + ID_Pessoa +
+                ", cpf='" + cpf + '\'' +
+                ", Usuario='" + Usuario + '\'' +
+                ", Email='" + Email + '\'' +
+                ", Senha='" + Senha + '\'' +
+                ", equipes=" + equipes +
+                '}';
     }
 
     public String getFormatarCPF() {

@@ -141,9 +141,10 @@ public class PessoaDAO {
 
                 int equipeId = resultado.getInt("ID_Equipe");
                 if (!resultado.wasNull()) {
-                    String nomeEquipe = resultado.getString("Nome"); // Assumindo que a tabela Equipe tem um campo 'Nome'
+                    String nomeEquipe = resultado.getString("Nome");
                     Equipe equipe = new Equipe(equipeId, nomeEquipe);
                     equipes.add(equipe);
+                    System.out.println("Adicionando equipe: " + nomeEquipe + " à pessoa: " + usuario);
                 }
             }
 
@@ -157,10 +158,9 @@ public class PessoaDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            ConexaoBancoDados.fecharConexao(); // Fecha a conexão
+            ConexaoBancoDados.fecharConexao();
         }
 
         return pessoa;
     }
-
 }

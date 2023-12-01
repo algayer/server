@@ -5,8 +5,8 @@ import java.io.Serializable;
 public class RequestObject implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private String operation; // Operação que você deseja realizar (por exemplo, "create", "read", "update", "delete")
-    private Object data; // Os dados relacionados à operação
+    private String operation; // Operaçãos CRUD
+    private Object data; // Dados
 
     public RequestObject() {
         // Construtor vazio é necessário para serialização

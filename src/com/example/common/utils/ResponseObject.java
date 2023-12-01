@@ -5,9 +5,9 @@ import java.io.Serializable;
 public class ResponseObject implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    private boolean success; // Indica se a operação foi bem-sucedida
-    private String message; // Mensagem informativa sobre o resultado da operação
-    private Object data; // Os dados retornados pela operação (por exemplo, um objeto Pessoa)
+    private boolean success;
+    private String message;
+    private Object data;
 
     public ResponseObject() {
         // Construtor vazio é necessário para serialização

@@ -45,8 +45,6 @@ public class EquipeCRUDService implements CRUDService<Equipe> {
     public ResponseObject buscarEquipePorUsuario(int idPessoa) {
         List<Equipe> equipes = equipeDAO.obterEquipePorPessoaId(idPessoa);
         if (equipes != null && !equipes.isEmpty()) {
-            // Se a pessoa faz parte de mais de uma equipe, você pode decidir como lidar com isso.
-            // Aqui estou retornando apenas a primeira equipe encontrada.
             return new ResponseObject(true, "Equipe encontrada com sucesso", equipes.get(0));
         } else {
             return new ResponseObject(false, "Nenhuma equipe encontrada para o usuário", null);

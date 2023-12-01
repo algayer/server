@@ -113,13 +113,12 @@ public class ServerMain {
                     return new ResponseObject(true, "", equipeService.listarTodos());
                 // Operações para Equipe
                 case "listarMembrosEquipe":
-                    int equipeId = (int) request.getData(); // Suponha que você receba o ID da equipe como um parâmetro.
+                    int equipeId = (int) request.getData();
 
-                    // Verifique se o ID da equipe é válido (você pode adicionar validações adicionais, se necessário).
+                    // Verifica se o ID da equipe é válido
                     if (equipeId > 0) {
                         List<Pessoa> membrosEquipe = equipeService.listarMembros(equipeId);
-
-                        // Verifique se a lista de membros da equipe não está vazia.
+                        // Verifica se a lista de membros da equipe não está vazia.
                         if (!membrosEquipe.isEmpty()) {
                             return new ResponseObject(true, "Membros da equipe listados com sucesso", membrosEquipe);
                         } else {
@@ -145,8 +144,6 @@ public class ServerMain {
                     return new ResponseObject(true, "", projetoService.listarTodos());
                 case "getProjetosPorNome":
                     return new ResponseObject(true, "", projetoService.listarTodosPorNome((String) request.getData()));
-                //case "listarProjetosPorUsuario":
-                //return new ResponseObject(true, "listarProjetosPorUsuario", projetoService.listarProjetosPorUsuario((int) request.getData()));
                 case "listarProjetosPorEquipe":
                     int idEquipe = (int) request.getData();
                     List<Projeto> projetosDaEquipe = projetoService.listarProjetosPorEquipe(idEquipe);
@@ -166,6 +163,9 @@ public class ServerMain {
                     return new ResponseObject(true, "Tarefa excluída com sucesso", null);
                 case "listarTodosTarefa":
                     return new ResponseObject(true, "", tarefaService.listarTodos());
+                case "listarTarefasPorProjeto":
+                    int projectId = (int) request.getData();
+                    return tarefaService.listarTarefasPorProjeto(projectId);
 
                 // Operações para Anexo
                 case "criarAnexo":

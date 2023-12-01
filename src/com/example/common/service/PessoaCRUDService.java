@@ -40,8 +40,8 @@ public class PessoaCRUDService implements CRUDService<Pessoa> {
 
     public ResponseObject login(Pessoa pessoa) {
         Pessoa pessoaEncontrada = pessoaDAO.obterPessoaPorUsuarioESenha(pessoa.getUsuario(), pessoa.getSenha());
-        System.out.println(pessoaEncontrada.toString());
         if (pessoaEncontrada != null) {
+            System.out.println(pessoaEncontrada.toString());
             return new ResponseObject(true, "Login bem-sucedido", pessoaEncontrada);
         } else {
             return new ResponseObject(false, "Usuário ou senha inválidos", null);

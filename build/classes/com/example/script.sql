@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS Pessoa (
   ID_Pessoa INT NOT NULL AUTO_INCREMENT,
   cpf VARCHAR(11) NOT NULL,
   Usuario VARCHAR(45) NOT NULL,
-  Email VARCHAR(45),
+  Email VARCHAR(60),
   Senha VARCHAR(100) NOT NULL,
   Tipo INT NOT NULL, -- 0 para gerente, 1 para funcionário
   PRIMARY KEY (ID_Pessoa)
@@ -34,11 +34,9 @@ CREATE TABLE IF NOT EXISTS Projeto (
   DataEntrega DATE NOT NULL,
   DataInicial DATE NOT NULL,
   ID_Equipe INT NOT NULL,
-  ID_Pessoa INT NOT NULL,
   Estado BOOLEAN NOT NULL,
   PRIMARY KEY (ID_Projeto),
-  FOREIGN KEY (ID_Equipe) REFERENCES Equipe (ID_Equipe),
-  FOREIGN KEY (ID_Pessoa) REFERENCES Pessoa (ID_Pessoa)
+  FOREIGN KEY (ID_Equipe) REFERENCES Equipe (ID_Equipe)
 );
 
 -- Excluindo e criando a tabela Tarefa
@@ -47,7 +45,7 @@ CREATE TABLE IF NOT EXISTS Tarefa (
   ID_Tarefa INT NOT NULL AUTO_INCREMENT,
   Nome VARCHAR(45) NOT NULL,
   Descricao VARCHAR(45) NOT NULL,
-  HorasTrabalhadas TIME NULL,
+  HorasTrabalhadas VARCHAR(15) NULL,
   DataEntrega Date NOT NULL,
   ID_Projeto INT NOT NULL,
   Estado BOOLEAN NOT NULL,
@@ -60,6 +58,7 @@ CREATE TABLE IF NOT EXISTS Pessoa_has_Equipe (
   Pessoa_ID_Pessoa INT NOT NULL,
   Equipe_ID_Equipe INT NOT NULL,
   PRIMARY KEY (Pessoa_ID_Pessoa, Equipe_ID_Equipe),
+  FOREIGN KEY (Pessoa_ID_Pessoa) REFERENCES Pessoa (ID_Pessoa),
   FOREIGN KEY (Equipe_ID_Equipe) REFERENCES Equipe (ID_Equipe)
 );
 
@@ -92,15 +91,24 @@ VALUES ('03426608022', 'Algayer', 'matheusalgayer15@gmail.com', '12345', 1),
 ('89012345605', 'Carla Lima', 'carla.lima@email.com', 'senha345', 0),
 ('34567890106', 'Lucas Oliveira', 'lucas.oliveira@email.com', 'senha678', 0),
 ('90123456707', 'Mariana Costa', 'mariana.costa@email.com', 'senha901', 0),
-('45678901208', 'Rafael Fernandes', 'rafael.fernandes@email.com', 'senha234', 0),
-('01234567809', 'Larissa Gonçalves', 'larissa.goncalves@email.com', 'senha567', 0),
-('67890123410', 'Diego Santos', 'diego.santos@email.com', 'senha890', 0);
+('45678901208', 'Rafael Fernandes', 'rafael.fernandes@email.com', 'senha234', 0);
 
-INSERT INTO Equipe (Nome) VALUES ('Equipe de Desenvolvimento');
+INSERT INTO Equipe (Nome)
+VALUES ('Equipe Alpha'), ('Equipe Beta'), ('Equipe Gamma');
 
-INSERT INTO Pessoa_has_Equipe (Pessoa_ID_Pessoa, Equipe_ID_Equipe) 
+INSERT INTO Pessoa_has_Equipe (Pessoa_ID_Pessoa, Equipe_ID_Equipe)
 VALUES ((SELECT ID_Pessoa FROM Pessoa WHERE Usuario = 'Algayer'), 1);
 
-INSERT INTO Projeto (Nome, Descricao, DataEntrega, DataInicial, ID_Equipe, ID_Pessoa, Estado)
-VALUES ('Projeto Alpha', 'Desenvolvimento do produto Alpha.', '2023-12-31', '2023-01-01', 1, 1, true),
-       ('Projeto Beta', 'Pesquisa de mercado para o produto Beta.', '2024-06-30', '2023-02-01', 1, 1, false);
+INSERT INTO Projeto (Nome, Descricao, DataEntrega, DataInicial, ID_Equipe, Estado)
+VALUES ('Projeto 1', 'Desenvolvimento de um novo produto', '2023-12-31', '2023-01-01', 1, FALSE),
+       ('Projeto 2', 'Pesquisa de mercado', '2023-06-30', '2023-02-01', 1, FALSE);
+
+INSERT INTO Tarefa (Nome, Descricao, HorasTrabalhadas, DataEntrega, ID_Projeto, Estado)
+VALUES ('Análise de requisitos', 'Analisar os requisitos do produto', NULL, '2023-03-01', 1, FALSE),
+       ('Design do produto', 'Desenvolver o design do produto', NULL, '2023-04-01', 1, FALSE),
+       ('Estudo de mercado', 'Realizar um estudo de mercado', NULL, '2023-03-15', 2, FALSE),
+       ('Estudo de mercado', 'Realizar um estudo de mercado', "15:00:00", '2023-03-15', 2, TRUE),
+       ('Análise de concorrência', 'Analisar os concorrentes', NULL, '2023-04-15', 2, FALSE);
+       
+
+

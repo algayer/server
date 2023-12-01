@@ -2,9 +2,11 @@ package com.example.common.service;
 
 import com.example.common.dao.TarefaDAO;
 import com.example.common.model.Tarefa;
+import com.example.common.utils.ResponseObject;
 import java.util.List;
 
 public class TarefaCRUDService implements CRUDService<Tarefa> {
+
     private TarefaDAO tarefaDAO;
 
     public TarefaCRUDService() {
@@ -35,5 +37,13 @@ public class TarefaCRUDService implements CRUDService<Tarefa> {
     public List<Tarefa> listarTodos() {
         return tarefaDAO.listarTodasTarefas();
     }
-}
 
+    public ResponseObject listarTarefasPorProjeto(int projectId) {
+        List<Tarefa> tarefas = tarefaDAO.listarTarefasPorProjeto(projectId);
+        if (!tarefas.isEmpty()) {
+            return new ResponseObject(true, "Tarefas listadas com sucesso", tarefas);
+        } else {
+            return new ResponseObject(false, "Nenhuma tarefa encontrada para o projeto com ID: " + projectId, null);
+        }
+    }
+}

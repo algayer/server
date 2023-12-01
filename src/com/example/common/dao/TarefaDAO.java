@@ -17,7 +17,7 @@ public class TarefaDAO {
         try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, tarefa.getNome());
             stmt.setString(2, tarefa.getDescricao());
-            stmt.setTime(3,tarefa.getHorasTrabalhadas());
+            stmt.setString(3,tarefa.getHorasTrabalhadas());
             stmt.setDate(4, new java.sql.Date(tarefa.getDataEntrega().getTime()));
             stmt.setInt(5, tarefa.getID_Projeto());
             stmt.setBoolean(6, tarefa.getEstado());
@@ -38,7 +38,7 @@ public class TarefaDAO {
         try (Connection conexao = ConexaoBancoDados.abrirConexao(); PreparedStatement stmt = conexao.prepareStatement(sql)) {
             stmt.setString(1, tarefa.getNome());
             stmt.setString(2, tarefa.getDescricao());
-            stmt.setTime(3, tarefa.getHorasTrabalhadas());
+            stmt.setString(3, tarefa.getHorasTrabalhadas());
             stmt.setDate(4, new java.sql.Date(tarefa.getDataEntrega().getTime()));
             stmt.setInt(5, tarefa.getID_Projeto());
             stmt.setBoolean(6, tarefa.getEstado());
@@ -79,7 +79,7 @@ public class TarefaDAO {
             if (resultado.next()) {
                 String nome = resultado.getString("Nome");
                 String descricao = resultado.getString("Descricao");
-                Time horasTrabalhadas = resultado.getTime("HorasTrabalhadas");
+                String horasTrabalhadas = resultado.getString("HorasTrabalhadas");
                 java.sql.Date dataEntrega = resultado.getDate("DataEntrega");
                 int idProjeto = resultado.getInt("ID_Projeto");
                 boolean estado = resultado.getBoolean("Estado");
@@ -103,7 +103,7 @@ public class TarefaDAO {
                 int idTarefa = resultado.getInt("ID_Tarefa");
                 String nome = resultado.getString("Nome");
                 String descricao = resultado.getString("Descricao");
-                Time horasTrabalhadas = resultado.getTime("HorasTrabalhadas");
+                String horasTrabalhadas = resultado.getString("HorasTrabalhadas");
                 java.sql.Date dataEntrega = resultado.getDate("DataEntrega");
                 int idProjeto = resultado.getInt("ID_Projeto");
                 boolean Estado = resultado.getBoolean("Estado");
@@ -118,4 +118,37 @@ public class TarefaDAO {
 
         return listaTarefas;
     }
+    
+    public List<Tarefa> listarTarefasPorProjeto(int projectId) {
+        List<Tarefa> tarefas = new ArrayList<>();
+        String sql = "SELECT * FROM Tarefa WHERE ID_Projeto = ?";
+
+        try (Connection conexao = ConexaoBancoDados.abrirConexao();
+             PreparedStatement stmt = conexao.prepareStatement(sql)) {
+            stmt.setInt(1, projectId);
+            ResultSet resultado = stmt.executeQuery();
+
+            while (resultado.next()) {
+                int idTarefa = resultado.getInt("ID_Tarefa");
+                String nome = resultado.getString("Nome");
+                String descricao = resultado.getString("Descricao");
+                String horasTrabalhadas = resultado.getString("HorasTrabalhadas");
+                int idProjeto = resultado.getInt("ID_Projeto");
+                java.sql.Date dataEntrega = resultado.getDate("DataEntrega");
+                boolean estado = resultado.getBoolean("Estado");
+
+                Tarefa tarefa = new Tarefa(idTarefa, nome, descricao, horasTrabalhadas, idProjeto, dataEntrega, estado);
+                tarefas.add(tarefa);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Retornando lista vazia em caso de erro
+            return new ArrayList<>();
+        } finally {
+            ConexaoBancoDados.fecharConexao();
+        }
+
+        return tarefas;
+    }
+    
 }
